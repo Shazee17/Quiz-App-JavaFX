@@ -99,6 +99,100 @@ public class Quiz {
         return flag;
     }
 
+    public static Map<Quiz, Integer> getAllWithQuestionCount() {
+        Map<Quiz, Integer> quizzes = new HashMap<>();
+        Quiz key = null;
+
+        String query = String.
+                format("SELECT %s.%s , %s  ," +
+                                " COUNT(*) as question_count  " +
+
+                                "FROM %s join %s on %s.%s = %s.%s GROUP BY %s.%s",
+                        MetaData.TABLE_NAME,
+                        MetaData.QUIZ_ID,
+                        MetaData.TITLE,
+                        MetaData.TABLE_NAME,
+                        Question.MetaData.TABLE_NAME,
+                        Question.MetaData.TABLE_NAME,
+                        Question.MetaData.QUIZ_ID,
+                        MetaData.TABLE_NAME,
+                        MetaData.QUIZ_ID,
+                        MetaData.TABLE_NAME,
+                        MetaData.QUIZ_ID
+                );
+        String connectionUrl = "jdbc:sqlite:quiz.db";
+        System.out.println(query);
+        try {
+            Class.forName("org.sqlite.JDBC");
+            try (Connection connection = DriverManager.getConnection(connectionUrl)) {
+
+                PreparedStatement ps = connection.prepareStatement(query);
+                ResultSet result = ps.executeQuery();
+
+                while (result.next()) {
+                    Quiz temp = new Quiz();
+                    temp.setQuizId(result.getInt(1));
+                    temp.setQuizTitle(result.getString(2));
+                    int count = result.getInt(3);
+                    quizzes.put(temp, count);
+
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return quizzes;
+    }
+
+    public List<Question> getQuestions() {
+        List<Question> questions = new ArrayList<>();
+
+        String query = String.format(
+                "SELECT %s, %s, %s, %s, %s, %s FROM %s WHERE %s = ?",
+                Question.MetaData.QUESTION,
+                Question.MetaData.OPTION1,
+                Question.MetaData.OPTION2,
+                Question.MetaData.OPTION3,
+                Question.MetaData.OPTION4,
+                Question.MetaData.CORRECT_OPTION,
+                Question.MetaData.TABLE_NAME,
+                Question.MetaData.QUIZ_ID
+        );
+
+        String connectionUrl = "jdbc:sqlite:quiz.db";
+        System.out.println(query);
+
+        try {
+            Class.forName("org.sqlite.JDBC");
+            try (Connection connection = DriverManager.getConnection(connectionUrl)) {
+                PreparedStatement ps = connection.prepareStatement(query);
+                ps.setInt(1, this.quizId);
+                ResultSet result = ps.executeQuery();
+
+                while (result.next()) {
+                    Question tempQuestion = new Question();
+                    // Skip setting Question ID
+                    tempQuestion.setQuestion(result.getString(1));
+                    tempQuestion.setOption1(result.getString(2));
+                    tempQuestion.setOption2(result.getString(3));
+                    tempQuestion.setOption3(result.getString(4));
+                    tempQuestion.setOption4(result.getString(5));
+                    tempQuestion.setCorrectOption(result.getString(6));
+                    tempQuestion.setQuiz(this);
+                    questions.add(tempQuestion);
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return questions;
+    }
+
+
+
+
     public static Map<Quiz, List<Question>> getAll() {
         Map<Quiz, List<Question>> quizzes = new HashMap<>();
         Quiz key = null;

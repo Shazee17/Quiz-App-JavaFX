@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import models.Question;
 import models.Quiz;
+import models.QuizResult;
 import models.Student;
 
 import java.io.IOException;
@@ -31,5 +32,6 @@ public class HelloApplication extends Application {
         Quiz.createTable();
         Question.createTable();
         Student.createTable();
+        QuizResult.createTable();
     }
 }

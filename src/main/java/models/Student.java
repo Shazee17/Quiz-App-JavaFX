@@ -1,5 +1,7 @@
 package models;
 
+import exceptions.LoginException;
+
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -12,7 +14,7 @@ public class Student {
     private String email;
     private String password;
 
-    private static class MetaData {
+    public static class MetaData {
         public static final String TABLE_NAME = "students";
         public static final String STUDENT_ID = "student_id";
         public static final String FIRST_NAME = "first_name";
@@ -100,6 +102,49 @@ public class Student {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public Student(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+
+    public void login() throws LoginException, SQLException, ClassNotFoundException{
+        String query = String.format("SELECT %s, %s, %s, %s, %s, %s FROM %s WHERE %s=? AND %s=?",
+                MetaData.STUDENT_ID, MetaData.FIRST_NAME, MetaData.LAST_NAME,
+                MetaData.PHONE_NO, MetaData.GENDER, MetaData.PASSWORD,
+                MetaData.TABLE_NAME, MetaData.EMAIL, MetaData.PASSWORD);
+        String connectionUrl = "jdbc:sqlite:quiz.db";
+        System.out.println(query);
+
+        try {
+            Class.forName("org.sqlite.JDBC");
+            try (Connection connection = DriverManager.getConnection(connectionUrl);
+                 PreparedStatement statement = connection.prepareStatement(query)) {
+
+                statement.setString(1, this.email);
+                statement.setString(2, this.password);
+
+                ResultSet resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    this.setStudentId(resultSet.getInt(1));
+                    this.setFirstName(resultSet.getString(2));
+                    this.setLastName(resultSet.getString(3));
+                    this.setPhoneNo(resultSet.getString(4));
+                    this.setGender(resultSet.getString(5).charAt(0));
+
+
+                    System.out.println("Login successful.");
+                } else {
+                    throw new LoginException("Invalid email or password.");
+                }
+            } catch (SQLException e) {
+                System.out.println("Error logging in: " + e.getMessage());
+            }
+        } catch (ClassNotFoundException e) {
+            System.out.println("SQLite JDBC Driver not found.");
+        }
+    }
+
 
     public static void createTable() {
         try {

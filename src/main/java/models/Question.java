@@ -18,6 +18,7 @@ public class Question {
     public static class MetaData {
         public static final String TABLE_NAME = "questions";
         public static final String QUIZ_ID = "quiz_id";
+        public static final String QUESTION_ID = "questionId";
         public static final String QUESTION = "question";
         public static final String OPTION1 = "option1";
         public static final String OPTION2 = "option2";
@@ -105,9 +106,9 @@ public class Question {
 
     public static void createTable() {
         String raw = "CREATE TABLE IF NOT EXISTS %s (" +
-                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "%s INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "%s INTEGER, " +
-                "question VARCHAR(1000), " +
+                "%s VARCHAR(1000), " +
                 "%s VARCHAR(1000), " +
                 "%s VARCHAR(1000), " +
                 "%s VARCHAR(1000), " +
@@ -115,7 +116,7 @@ public class Question {
                 "%s VARCHAR(1000), " +
                 "FOREIGN KEY (%s) REFERENCES %s(%s)" +
                 ")";
-        String query = String.format(raw, MetaData.TABLE_NAME, MetaData.QUIZ_ID, MetaData.OPTION1, MetaData.OPTION2, MetaData.OPTION3, MetaData.OPTION4, MetaData.CORRECT_OPTION, MetaData.QUIZ_ID, Quiz.MetaData.TABLE_NAME, Quiz.MetaData.QUIZ_ID);
+        String query = String.format(raw, MetaData.TABLE_NAME, MetaData.QUESTION_ID, MetaData.QUIZ_ID, MetaData.QUESTION, MetaData.OPTION1, MetaData.OPTION2, MetaData.OPTION3, MetaData.OPTION4, MetaData.CORRECT_OPTION, MetaData.QUIZ_ID, Quiz.MetaData.TABLE_NAME, Quiz.MetaData.QUIZ_ID);
 
         System.out.println(query);
 
@@ -133,6 +134,7 @@ public class Question {
             e.printStackTrace();
         }
     }
+
 
 
     public void save(){
